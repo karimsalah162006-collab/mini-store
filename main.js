@@ -15,7 +15,7 @@ let products = [
   { name: "shirt", desc: "this a HBA-shirt", img: "images/shirt.png" },
 ];
 
-let count = 0;
+let cart = JSON.parse(localStorage.getItem("myCart")) || [];
 let nav = document.createElement("nav");
 let searchInput = document.createElement("input");
 let cartCounter = document.createElement("div");
@@ -43,10 +43,15 @@ searchInput.style.border = "none";
 searchInput.style.width = "250px";
 nav.appendChild(searchInput);
 
-cartCounter.innerText = "Cart: 0";
+cartCounter.innerText = "Cart: "+cart.length;
 cartCounter.style.color = "white";
 cartCounter.style.fontWeight = "bold";
 nav.appendChild(cartCounter);
+cartCounter.style.cursor = "pointer";
+cartCounter.onclick = ()=>{
+  window.location.href =
+  "checkout.html";
+};
 
 container.style.display = "flex";
 container.style.flexWrap = "wrap";
