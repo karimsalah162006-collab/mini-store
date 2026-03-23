@@ -1,5 +1,4 @@
 let cart = JSON.parse(localStorage.getItem("myCart")) || [];
-
 let checkoutContainer = document.createElement("div");
 document.body.appendChild(checkoutContainer);
 
@@ -8,122 +7,95 @@ document.body.style.color = "white";
 document.body.style.fontFamily = "Arial";
 
 function renderCheckout() {
-  checkoutContainer.innerHTML = "";
-  checkoutContainer.style.display = "flex";
-  checkoutContainer.style.justifyContent = "center";
-  checkoutContainer.style.padding = "50px";
-  checkoutContainer.style.flexWrap = "wrap";
-  checkoutContainer.style.gap = "40px";
+    checkoutContainer.innerHTML = "";
+    checkoutContainer.style.display = "flex";
+    checkoutContainer.style.justifyContent = "center";
+    checkoutContainer.style.padding = "50px";
+    checkoutContainer.style.flexWrap = "wrap";
+    checkoutContainer.style.gap = "40px";
 
-  if (cart.length > 0) {
-    let cartList = document.createElement("div");
-    cartList.style.width = "400px";
-    cartList.style.backgroundColor = "#333";
-    cartList.style.padding = "30px";
-    cartList.style.borderRadius = "15px";
+    if (cart.length > 0) {
+        let cartList = document.createElement("div");
+        cartList.style.width = "400px";
+        cartList.style.backgroundColor = "#333";
+        cartList.style.padding = "30px";
+        cartList.style.borderRadius = "15px";
 
-    let title = document.createElement("h1");
-    title.innerText = "Your Cart Items";
-    title.style.margin = "0 0 30px 0";
-    cartList.appendChild(title);
+        let title = document.createElement("h1");
+        title.innerText = "Order Summary";
+        cartList.appendChild(title);
 
-    cart.forEach((product, index) => {
-      let itemRow = document.createElement("div");
-      itemRow.style.display = "flex";
-      itemRow.style.alignItems = "center";
-      itemRow.style.justifyContent = "space-between";
-      itemRow.style.marginBottom = "20px";
-      itemRow.style.borderBottom = "1px solid #444";
-      itemRow.style.paddingBottom = "10px";
+        // حساب الإجمالي الأصلي
+        let total = 0;
 
-      let infoDiv = document.createElement("div");
-      infoDiv.style.display = "flex";
-      infoDiv.style.alignItems = "center";
-      infoDiv.style.gap = "15px";
+        cart.forEach((product, index) => {
+            total += product.price; // جمع الأسعار
+            let itemRow = document.createElement("div");
+            itemRow.style.display = "flex";
+            itemRow.style.justifyContent = "space-between";
+            itemRow.style.marginBottom = "15px";
+            itemRow.style.borderBottom = "1px solid #444";
+            itemRow.style.paddingBottom = "10px";
 
-      let img = document.createElement("img");
-      img.src = product.img;
-      img.style.width = "50px";
-      img.style.height = "50px";
-      img.style.objectFit = "contain";
+            itemRow.innerHTML = `
+                <span>${product.name}</span>
+                <span>${product.price} EGP</span>
+                <button onclick="removeItem(${index})" style="background:red; color:white; border:none; border-radius:3px; cursor:pointer">✕</button>
+            `;
+            cartList.appendChild(itemRow);
+        });
 
-      let name = document.createElement("span");
-      name.innerText = product.name;
+        let totalDisplay = document.createElement("h2");
+        totalDisplay.id = "totalAmount";
+        totalDisplay.innerText = "Total: " + total + " EGP";
+        totalDisplay.style.borderTop = "2px solid #4CAF50";
+        totalDisplay.style.paddingTop = "10px";
+        cartList.appendChild(totalDisplay);
 
-      infoDiv.append(img, name);
+        checkoutContainer.appendChild(cartList);
 
-      let deleteBtn = document.createElement("button");
-      deleteBtn.innerText = "✕";
-      deleteBtn.style.backgroundColor = "#ff4444";
-      deleteBtn.style.color = "white";
-      deleteBtn.style.border = "none";
-      deleteBtn.style.borderRadius = "5px";
-      deleteBtn.style.padding = "5px 10px";
-      deleteBtn.style.cursor = "pointer";
+        // فورم البيانات والخصم
+        let form = document.createElement("form");
+        form.style.width = "350px";
+        form.style.display = "flex";
+        form.style.flexDirection = "column";
+        form.style.gap = "15px";
 
-      deleteBtn.onclick = () => {
-        cart.splice(index, 1);
-        localStorage.setItem("myCart", JSON.stringify(cart));
-        renderCheckout();
-      };
+        let promoInput = document.createElement("input");
+        promoInput.placeholder = "Promo Code (SAVE10)";
+        promoInput.style.padding = "10px";
 
-      itemRow.append(infoDiv, deleteBtn);
-      cartList.appendChild(itemRow);
-    });
+        let promoBtn = document.createElement("button");
+        promoBtn.innerText = "Apply Discount";
+        promoBtn.type = "button";
+        promoBtn.onclick = () => {
+            if (promoInput.value === "SAVE10") {
+                let discount = total * 0.10;
+                totalDisplay.innerText = "Total: " + (total - discount) + " EGP (10% OFF)";
+                totalDisplay.style.color = "#4CAF50";
+                alert("Discount Applied!");
+            }
+        };
 
-    checkoutContainer.appendChild(cartList);
+        let payBtn = document.createElement("button");
+        payBtn.innerText = "Confirm Order";
+        payBtn.style.backgroundColor = "#4CAF50";
+        payBtn.style.color = "white";
+        payBtn.style.padding = "15px";
+        payBtn.style.border = "none";
+        payBtn.style.cursor = "pointer";
 
-    let checkoutForm = document.createElement("form");
-    checkoutForm.style.width = "400px";
-    checkoutForm.style.backgroundColor = "#444";
-    checkoutForm.style.padding = "30px";
-    checkoutForm.style.borderRadius = "15px";
-    checkoutForm.style.display = "flex";
-    checkoutForm.style.flexDirection = "column";
-    checkoutForm.style.gap = "15px";
-
-    let formTitle = document.createElement("h2");
-    formTitle.innerText = "Shipping Details";
-
-    function createInput(placeholder, type = "text") {
-      let input = document.createElement("input");
-      input.type = type;
-      input.placeholder = placeholder;
-      input.style.padding = "12px";
-      input.style.borderRadius = "5px";
-      input.style.border = "none";
-      input.required = true;
-      return input;
+        form.append(promoInput, promoBtn, payBtn);
+        checkoutContainer.appendChild(form);
+    } else {
+        checkoutContainer.innerHTML = "<h1>Cart is empty</h1>";
     }
-
-    let nameInput = createInput("Your Full Name");
-    let addressInput = createInput("Shipping Address");
-    let phoneInput = createInput("Phone Number", "tel");
-
-    let payBtn = document.createElement("button");
-    payBtn.innerText = "Confirm Order (" + cart.length + " Items)";
-    payBtn.style.padding = "15px";
-    payBtn.style.cursor = "pointer";
-    payBtn.style.backgroundColor = "#4CAF50";
-    payBtn.style.color = "white";
-    payBtn.style.border = "none";
-    payBtn.style.fontWeight = "bold";
-    payBtn.style.borderRadius = "5px";
-
-    checkoutForm.onsubmit = (e) => {
-      e.preventDefault();
-      alert("Success! Your " + cart.length + " items are being prepared.");
-      localStorage.removeItem("myCart");
-      window.location.href = "index.html";
-    };
-
-    checkoutForm.append(formTitle, nameInput, addressInput, phoneInput, payBtn);
-    checkoutContainer.appendChild(checkoutForm);
-  } else {
-    checkoutContainer.innerHTML =
-      "<div style='text-align:center;'><h1>Your cart is empty!</h1><a href='index.html' style='color:#4CAF50;'>Go back to shopping</a></div>";
-  }
 }
 
-renderCheckout();
+window.removeItem = (index) => {
+    cart.splice(index, 1);
+    localStorage.setItem("myCart", JSON.stringify(cart));
+    renderCheckout();
+};
 
+renderCheckout();
