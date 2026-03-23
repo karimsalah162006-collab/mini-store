@@ -94,8 +94,9 @@ function displayProducts(filterText = "") {
     btn.style.fontWeight = "bold";
 
     btn.onclick = () => {
-      count++;
-      cartCounter.innerText = "Cart: " + count;
+      cart.push(p);
+      localStorage.setItem("myCart",JSON.stringify(cart));
+      cartCounter.innerText = "Cart: " + cart.length;
       btn.innerText = "Added ✓";
       btn.style.backgroundColor = "#4CAF50";
       setTimeout(() => {
